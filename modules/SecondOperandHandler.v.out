@@ -1,0 +1,94 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_000001dbd8526b60 .scope module, "SecondOperandHandler" "SecondOperandHandler" 2 1;
+ .timescale 0 0;
+    .port_info 0 /OUTPUT 32 "N";
+    .port_info 1 /INPUT 32 "PB";
+    .port_info 2 /INPUT 3 "Si";
+    .port_info 3 /INPUT 32 "imm12_I";
+    .port_info 4 /INPUT 32 "imm12_S";
+    .port_info 5 /INPUT 20 "imm20";
+    .port_info 6 /INPUT 32 "PC";
+v000001dbd8527220_0 .var "N", 31 0;
+o000001dbd8577008 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000001dbd8526cf0_0 .net "PB", 31 0, o000001dbd8577008;  0 drivers
+o000001dbd8577038 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000001dbd8526d90_0 .net "PC", 31 0, o000001dbd8577038;  0 drivers
+o000001dbd8577068 .functor BUFZ 3, C4<zzz>; HiZ drive
+v000001dbd8526e30_0 .net "Si", 2 0, o000001dbd8577068;  0 drivers
+o000001dbd8577098 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000001dbd852b9a0_0 .net "imm12_I", 31 0, o000001dbd8577098;  0 drivers
+o000001dbd85770c8 .functor BUFZ 32, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000001dbd852ba40_0 .net "imm12_S", 31 0, o000001dbd85770c8;  0 drivers
+o000001dbd85770f8 .functor BUFZ 20, C4<zzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v000001dbd852bae0_0 .net "imm20", 19 0, o000001dbd85770f8;  0 drivers
+E_000001dbd8576800/0 .event anyedge, v000001dbd8526d90_0, v000001dbd852bae0_0, v000001dbd852ba40_0, v000001dbd852b9a0_0;
+E_000001dbd8576800/1 .event anyedge, v000001dbd8526e30_0, v000001dbd8526cf0_0;
+E_000001dbd8576800 .event/or E_000001dbd8576800/0, E_000001dbd8576800/1;
+    .scope S_000001dbd8526b60;
+T_0 ;
+    %wait E_000001dbd8576800;
+    %load/vec4 v000001dbd8526e30_0;
+    %dup/vec4;
+    %pushi/vec4 0, 0, 3;
+    %cmp/u;
+    %jmp/1 T_0.0, 6;
+    %dup/vec4;
+    %pushi/vec4 1, 0, 3;
+    %cmp/u;
+    %jmp/1 T_0.1, 6;
+    %dup/vec4;
+    %pushi/vec4 2, 0, 3;
+    %cmp/u;
+    %jmp/1 T_0.2, 6;
+    %dup/vec4;
+    %pushi/vec4 3, 0, 3;
+    %cmp/u;
+    %jmp/1 T_0.3, 6;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000001dbd8527220_0, 0, 32;
+    %jmp T_0.5;
+T_0.0 ;
+    %load/vec4 v000001dbd8526cf0_0;
+    %store/vec4 v000001dbd8527220_0, 0, 32;
+    %jmp T_0.5;
+T_0.1 ;
+    %load/vec4 v000001dbd852b9a0_0;
+    %parti/s 1, 11, 5;
+    %replicate 12;
+    %load/vec4 v000001dbd852b9a0_0;
+    %concat/vec4; draw_concat_vec4
+    %pad/u 32;
+    %store/vec4 v000001dbd8527220_0, 0, 32;
+    %jmp T_0.5;
+T_0.2 ;
+    %load/vec4 v000001dbd852ba40_0;
+    %parti/s 1, 11, 5;
+    %replicate 12;
+    %load/vec4 v000001dbd852ba40_0;
+    %concat/vec4; draw_concat_vec4
+    %pad/u 32;
+    %store/vec4 v000001dbd8527220_0, 0, 32;
+    %jmp T_0.5;
+T_0.3 ;
+    %load/vec4 v000001dbd852bae0_0;
+    %concati/vec4 0, 0, 20;
+    %pad/u 32;
+    %store/vec4 v000001dbd8527220_0, 0, 32;
+    %jmp T_0.5;
+T_0.5 ;
+    %pop/vec4 1;
+    %jmp T_0;
+    .thread T_0, $push;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "SecondOperandHandler.v";
