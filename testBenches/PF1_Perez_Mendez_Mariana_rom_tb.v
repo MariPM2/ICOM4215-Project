@@ -2,15 +2,13 @@
     512 ROM test bench by Mariana Pérez
 */
 
-`include "../modules/ROM.v"
+`include "../modules/PF1_Perez_Mendez_Mariana_rom.v"
 
 module rom_tb;
 
     // Module variables
     wire [31:0] I; //output
     reg [8:0] A; //input
-
-    // A = 9'b0; // Initializing input in 0
 
     // ROM module instance
     rom rom1(I, A);
@@ -21,7 +19,7 @@ module rom_tb;
     integer fr, code; // declaracion variable para manejo de files
 
     initial begin
-        fr = $fopen("../textFiles/ROMinput.txt","r"); // Opening file to read
+        fr = $fopen("../textfiles/PF1_Perez_Mendez_Mariana_precharge.txt","r"); // Opening file to read
         A = 9'b0;
         while (!$feof(fr))
         begin
