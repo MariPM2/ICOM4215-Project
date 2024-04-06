@@ -1,4 +1,4 @@
-`include "../modules/SecondOperandHandler.v"
+`include "../modules/PF1_Rodriguez_Green_Diego_secondoperandhandler.v"
 
 module TestSecondOperandHandler;
     reg [2:0] Si; //al ser usasda dentro de "always" se declara reg
