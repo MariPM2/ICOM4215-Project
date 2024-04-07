@@ -19,7 +19,8 @@ module rom_tb;
     integer fr, code; // declaracion variable para manejo de files
 
     initial begin
-        fr = $fopen("../textfiles/PF1_Perez_Mendez_Mariana_precharge.txt","r"); // Opening file to read
+        fr = $fopen("../textfiles/PF3_precharge.txt","r"); // Opening file to read
+        // fr = $fopen("../textfiles/PF1_Perez_Mendez_Mariana_precharge.txt","r"); // Opening file to read
         A = 9'b0;
         while (!$feof(fr))
         begin
@@ -37,6 +38,8 @@ module rom_tb;
         $display("--A--  |  ------I------");
         repeat(4) begin
             #1;
+
+            $display("%d         %b", A, I);
             $display("%d         %h", A, I);
             A += 4;
         end

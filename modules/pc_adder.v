@@ -3,6 +3,6 @@ module PC_ADDER (
     input[31:0] adder_in
 );
     always @(adder_in) begin
-        adder_out = adder_in + 32'b100;
+        adder_out = adder_in + 4;
     end
 endmodule

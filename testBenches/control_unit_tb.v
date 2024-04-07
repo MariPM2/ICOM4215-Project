@@ -38,7 +38,6 @@ module control_unit_ppu_testbench();
     //START IF STAGE
 
     PC my_pc (pc_out, adder_out, clk, 1'b1, reset);
-    // NPC my_npc (npc_out, adder_out, clk, 1'b1, reset);
     PC_ADDER my_pc_adder (adder_out, pc_out);
     
     
@@ -107,23 +106,50 @@ module control_unit_ppu_testbench();
         
     always @(posedge clk) begin
         
-        case (id_instruction_out[31:26])
-            6'b001001: op_keyword = "ADDIU";
-            6'b100100: op_keyword = "LBU";
-            6'b101000: op_keyword = "SB";
-            6'b000111: op_keyword = "BGTZ";
-            6'b001111: op_keyword = "LUI";
-            6'b000011: op_keyword = "JAL";
+        case (id_instruction_out[6:0])
+            7'b0010011: op_keyword = "ADDI";
+            7'b0110011: op_keyword = "SUB";
+            7'b0100011: op_keyword = "SB"; 
+            7'b1100011: op_keyword = "BGE";
+            7'b0110111: op_keyword = "LUI";
+            7'b1101111: op_keyword = "JAL";
+            7'b1100111: op_keyword = "JALR";
+            7'b0000011: begin
+                            if(id_instruction_out[14:12] == 3'b000) begin
+                                    op_keyword = "LB";
+                                end
+                            else if(id_instruction_out[14:12] == 3'b100) begin
+                                    op_keyword = "LBU";
+                                end
+                        end
             default: op_keyword = "NOP";
         endcase
-        //if(id_control_signal_mux == 0) op_keyword = "NOP"; // Identify nop
-        if(id_instruction_out[31:26] == 6'b000000 && id_instruction_out[5:0] == 6'b100011) op_keyword = "SUBU";
-        if(id_instruction_out[31:26] == 6'b000000 && id_instruction_out[5:0] == 6'b001000) op_keyword = "JR";
-            $display("Keyword: %s, PC: %d", op_keyword, pc_out); // Instruction, PC, nPC
-            //$display("%b\n", if_instruction_out);
-            $display("\tControl Unit Signals (ID STAGE):\n\t\tID_RT_DEST = %b,\n \t\tID_Shift_IMM = %b,\n \t\tID_ALU_OP = %b,\n \t\tID_LOAD_INSTR = %b,\n \t\tID_RF_ENABLE = %b,\n \t\tID_BRANCH_ENABLE = %b,\n \t\tID_JUMP_ENABLE = %b,\n \t\tID_R31_DEST = %b,\n \t\tID_HI_ENABLE = %b,\n \t\tID_LO_ENABLE = %b,\n \t\tID_SIZE = %b,\n \t\tID_MEM_DATA_SE = %b,\n \t\tID_MEM_DATA_ENABLE = %b,\n \t\tID_PC_PLUS_EIGHT_ENABLE = %b,\n", id_control_signal_mux[19], id_control_signal_mux[18:16], id_control_signal_mux[15:12], id_control_signal_mux[11], id_control_signal_mux[10], id_control_signal_mux[9], id_control_signal_mux[8], id_control_signal_mux[7], id_control_signal_mux[6], id_control_signal_mux[5], id_control_signal_mux[4:3], id_control_signal_mux[2], id_control_signal_mux[1], id_control_signal_mux[0]);
-            $display("\tControl Unit Signals (EX STAGE):\n\t\tEX_Shift_IMM = %b,\n \t\tEX_ALU_OP = %b,\n \t\tEX_LOAD_INSTR = %b,\n \t\tEX_RF_ENABLE = %b,\n \t\tEX_BRANCH_ENABLE = %b,\n\t\tID_HI_ENABLE = %b,\n \t\tEX_LO_ENABLE = %b,\n \t\tEX_SIZE = %b,\n \t\tEX_MEM_DATA_SE = %b,\n \t\tEX_MEM_DATA_ENABLE = %b,\n \t\tEX_PC_PLUS_EIGHT_ENABLE = %b,\n", ex_control_signal[18:16], ex_control_signal[15:12], ex_control_signal[11], ex_control_signal[10], ex_control_signal[9], ex_control_signal[6], ex_control_signal[5], ex_control_signal[4:3], ex_control_signal[2], ex_control_signal[1], ex_control_signal[0]);
-            $display("\tControl Unit Signals (MEM STAGE):\n\t\tMEM_LOAD_INSTR = %b,\n \t\tMEM_RF_ENABLE = %b,\n \t\tMEM_HI_ENABLE = %b,\n \t\tID_LO_ENABLE = %b,\n \t\tID_SIZE = %b,\n \t\tID_MEM_DATA_SE = %b,\n \t\tID_MEM_DATA_ENABLE = %b,\n \t\tID_PC_PLUS_EIGHT_ENABLE = %b,\n", mem_control_signal[11], mem_control_signal[10],mem_control_signal[6],mem_control_signal[5], mem_control_signal[4:3], mem_control_signal[2], mem_control_signal[1], mem_control_signal[0]);           
-            $display("\tControl Unit Signals (WB STAGE):\n\t\tWB_RF_ENABLE = %b,\n\t\tWB_HI_ENABLE = %b,\n \t\tWB_LO_ENABLE = %b\n",wb_control_signal[10], wb_control_signal[6], wb_control_signal[5]);
+        
+            // Nuestros:
+            // $display("\tControl Unit Signals (ID STAGE):\n\t\tID_ALU_op = %b,\n \t\tID_load_instr = %b,\n \t\tID_RF_enable = %b,\n \t\tID_S2 = %b,\n \t\tID_S1 = %b,\n  \t\tID_S0 = %b,\n  \t\tID_branchType = %b,\n \t\tID_Size = %b,\n \t\tID_E = %b,\n \t\tID_SE = %b,\n \t\tID_R/W = %b,\n \t\tID_dataMemAddressInput = %b,\n \t\tID_AUIPC = %b,\n \t\tID_JALR = %b,\n \t\tID_JAL = %b,\n", id_control_signal_mux[20:17], id_control_signal_mux[16], id_control_signal_mux[15], id_control_signal_mux[14], id_control_signal_mux[13], id_control_signal_mux[12], id_control_signal_mux[11:9], id_control_signal_mux[8:7], id_control_signal_mux[6], id_control_signal_mux[5], id_control_signal_mux[4], id_control_signal_mux[3], id_control_signal_mux[2], id_control_signal_mux[1], id_control_signal_mux[0]);
+            // $display("\tControl Unit Signals (EX STAGE):\n\t\tEX_ALU_op = %b,\n \t\tEX_load_instr = %b,\n \t\tEX_RF_enable = %b,\n \t\tEX_S2 = %b,\n \t\tEX_S1 = %b,\n  \t\tEX_S0 = %b,\n  \t\tEX_branchType = %b,\n \t\tEX_Size = %b,\n \t\tID_E = %b,\n \t\tEX_SE = %b,\n \t\tEX_R/W = %b,\n \t\tEX_dataMemAddressInput = %b,\n \t\tEX_AUIPC = %b,\n \t\tEX_JALR = %b,\n \t\tEX_JAL = %b,\n", ex_control_signal[20:17], ex_control_signal[16], ex_control_signal[15], ex_control_signal[14], ex_control_signal[13], ex_control_signal[12], ex_control_signal[11:9], ex_control_signal[8:7], ex_control_signal[6], ex_control_signal[5], ex_control_signal[4], ex_control_signal[3], ex_control_signal[2], ex_control_signal[1], ex_control_signal[0]);
+            // $display("\tControl Unit Signals (MEM STAGE)\n\t\tMEM_ALU_op = %b,\n \t\tMEM_load_instr = %b,\n \t\tMEM_RF_enable = %b,\n \t\tMEM_S2 = %b,\n \t\tMEM_S1 = %b,\n  \t\tMEM_S0 = %b,\n  \t\tMEM_branchType = %b,\n \t\tMEM_Size = %b,\n \t\tMEM_E = %b,\n \t\tMEM_SE = %b,\n \t\tMEM_R/W = %b,\n \t\tMEM_dataMemAddressInput = %b,\n \t\tMEM_AUIPC = %b,\n \t\tMEM_JALR = %b,\n \t\tMEM_JAL = %b,\n", mem_control_signal[20:17], mem_control_signal[16], mem_control_signal[15], mem_control_signal[14], mem_control_signal[3], mem_control_signal[12], mem_control_signal[11:9], mem_control_signal[8:7], mem_control_signal[6], mem_control_signal[5], mem_control_signal[4], mem_control_signal[3], mem_control_signal[2], mem_control_signal[1], mem_control_signal[0]);           
+            // $display("\tControl Unit Signals (WB STAGE):\n\t\tWB_ALU_op = %b,\n \t\tWB_load_instr = %b,\n \t\tWB_RF_enable = %b,\n \t\tWB_S2 = %b,\n \t\tWB_S1 = %b,\n  \t\tWB_S0 = %b,\n  \t\tWB_branchType = %b,\n \t\tWB_Size = %b,\n \t\tWB_E = %b,\n \t\tWB_SE = %b,\n \t\tWB_R/W = %b,\n \t\tWB_dataMemAddressInput = %b,\n \t\tWB_AUIPC = %b,\n \t\tWB_JALR = %b,\n \t\tWB_JAL = %b,\n", wb_control_signal[20:17], wb_control_signal[16], wb_control_signal[15], wb_control_signal[14], wb_control_signal[13], wb_control_signal[12], wb_control_signal[11:9], wb_control_signal[8:7], wb_control_signal[6], wb_control_signal[5], wb_control_signal[4], wb_control_signal[3], wb_control_signal[2], wb_control_signal[1], wb_control_signal[0]);
+
+
+            $display("\nKeyword: %s", op_keyword);
+            $display("PC: %d", pc_out);
+            $display("\n Control signal | ID stage | EX stage | MEM stage | WB stage ");
+            $display("----------------|----------|----------|-----------|----------");
+            $display("\tALU_op      | %04b     | %04b     | %04b      | %04b     ", id_control_signal_mux[20:17], ex_control_signal[20:17], mem_control_signal[20:17], wb_control_signal[20:17]);
+            $display("\tload_instr  | %d        | %d        | %d         | %d        ", id_control_signal_mux[16], ex_control_signal[16], mem_control_signal[16], wb_control_signal[16]);
+            $display("\tRF_enable   | %d        | %d        | %d         | %d        ", id_control_signal_mux[15], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15]);
+            $display("\tS2          | %d        | %d        | %d         | %d        ", id_control_signal_mux[14], ex_control_signal[14], mem_control_signal[14], wb_control_signal[14]);
+            $display("\tS1          | %d        | %d        | %d         | %d        ", id_control_signal_mux[13], ex_control_signal[13], mem_control_signal[13], wb_control_signal[13]);
+            $display("\tS0          | %d        | %d        | %d         | %d        ", id_control_signal_mux[12], ex_control_signal[12], mem_control_signal[12], wb_control_signal[12]);
+            $display("\tbranchType  | %03b      | %03b      | %03b       | %03b      ", id_control_signal_mux[11:9], ex_control_signal[11:9], mem_control_signal[11:9], wb_control_signal[11:9]);
+            $display("\tSize        | %02b       | %02b       | %02b        | %02b       ", id_control_signal_mux[8:7], ex_control_signal[8:7], mem_control_signal[8:7], wb_control_signal[8:7]);
+            $display("\tE           | %d        | %d        | %d         | %d        ", id_control_signal_mux[6], ex_control_signal[6], mem_control_signal[6], wb_control_signal[6]);
+            $display("\tSE          | %d        | %d        | %d         | %d        ", id_control_signal_mux[5], ex_control_signal[5], mem_control_signal[5], wb_control_signal[5]);
+            $display("\tR/W         | %d        | %d        | %d         | %d        ", id_control_signal_mux[4], ex_control_signal[4], mem_control_signal[4], wb_control_signal[4]);
+            $display("\tdataMemAddr | %d        | %d        | %d         | %d        ", id_control_signal_mux[3], ex_control_signal[3], mem_control_signal[3], wb_control_signal[3]);
+            $display("\tAUIPC       | %d        | %d        | %d         | %d        ", id_control_signal_mux[2], ex_control_signal[2], mem_control_signal[2], wb_control_signal[2]);
+            $display("\tJALR        | %d        | %d        | %d         | %d        ", id_control_signal_mux[1], ex_control_signal[1], mem_control_signal[1], wb_control_signal[1]);
+            $display("\tJAL         | %d        | %d        | %d         | %d        ", id_control_signal_mux[0], ex_control_signal[0], mem_control_signal[0], wb_control_signal[0]);
     end
 endmodule
