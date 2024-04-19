@@ -39,44 +39,93 @@ module CONTROL_UNIT (
         ID_JAL = 0;
 
         case (instruction[6:0])
-            //ADDI:
+        // Integer Register-Immediate Instructions:
             7'b0010011: begin
-                            ID_load_instr = 0;
-                            ID_ALU_op = 4'b0010;    //Selected ADD
-                            ID_RF_enable = 1;       //Activated
-                            ID_S2 = 0;
-                            ID_S1 = 0;
-                            ID_S0 = 1;
-                        end
-            // SUB:
-            7'b0110011: begin
-                            ID_load_instr = 0;
-                            ID_ALU_op = 4'b0011;    //Selected SUB
-                            ID_RF_enable = 1;       //Activated
-                            ID_S2 = 0;
-                            ID_S1 = 0;
-                            ID_S0 = 0;
-                        end
-            // SB:
-            7'b0100011: begin
-                            ID_load_instr = 0;                //Deactivated because we are writing
-                            ID_Size = 2'b00;            //Reading byte
-                            ID_SE = 0;         
-                            ID_E = 1;     //Enable RAM
-                            ID_RW = 1;
-                            ID_S2 = 0;
-                            ID_S1 = 1;
-                            ID_S0 = 0;
-                            ID_ALU_op = 4'b0010;
-                        end
-            // BGE:
-            7'b1100011: begin
-                        if(instruction[14:12] == 3'b000) begin
-                                ID_RF_enable = 1;                   //Activated
-                                ID_branchType = 3'b010;               //Activated 
+                            //ADDI:
+                            if(instruction[14:12] == 3'b000) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0010;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
                             end
-                        else ID_branchType = instruction[14:12];
+                            // SLTI (WORK!!!)
+                            else if(instruction[14:12] == 3'b010) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0010;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // SLTIU (WORK!!!)
+                            else if(instruction[14:12] == 3'b011) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0010;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // ANDI
+                            else if(instruction[14:12] == 3'b111) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b1010;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // ORI
+                            else if(instruction[14:12] == 3'b110) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b1011;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // XORI
+                            else if(instruction[14:12] == 3'b100) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b1100;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // SLLI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
+                            else if(instruction[14:12] == 3'b100) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0101;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // SRLI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
+                            else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0000000) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0110;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
+                            // SRAI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
+                            else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
+                                    ID_load_instr = 0;
+                                    ID_ALU_op = 4'b0110;    //Selected ADD
+                                    ID_RF_enable = 1;       //Activated
+                                    ID_S2 = 0;
+                                    ID_S1 = 0;
+                                    ID_S0 = 1;
+                            end
                         end
+
+            
+        // -------------------------------------------------------------------------------------------------------------------------------
             // LUI:
             7'b0110111: begin
                             ID_S2 = 0;
@@ -85,6 +134,229 @@ module CONTROL_UNIT (
                             ID_ALU_op = 4'b0000;    
                             ID_RF_enable = 1;       //Activated
                         end
+        // -------------------------------------------------------------------------------------------------------------------------------
+            // AUIPC:
+            7'b0010111: begin
+                            ID_S2 = 0;
+                            ID_S1 = 1;
+                            ID_S0 = 1;
+                            ID_ALU_op = 4'b0001;    
+                            ID_RF_enable = 1;       //Activated
+                        end
+        // -------------------------------------------------------------------------------------------------------------------------------
+            // Arithmetic Instructions:
+            7'b0110011: begin
+                            // ADD:
+                            if(instruction[14:12] == 3'b000 && instruction[31:25] == 7'b0000000) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0010;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SUB:
+                            else if(instruction[14:12] == 3'b000 && instruction[31:25] == 7'b0100000) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0011;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SLT (WORK)
+                            else if(instruction[14:12] == 3'b010) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0011;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SLTU (WORK)
+                            else if(instruction[14:12] == 3'b011) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0011;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // AND
+                            else if(instruction[14:12] == 3'b111) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b1010;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // OR
+                            else if(instruction[14:12] == 3'b110) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b1011;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // XOR
+                            else if(instruction[14:12] == 3'b100) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b1100;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SLL
+                            else if(instruction[14:12] == 3'b001) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0101;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SRL
+                            else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0000000) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0110;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                            // SRA
+                            else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
+                                ID_load_instr = 0;
+                                ID_ALU_op = 4'b0110;    //Selected SUB
+                                ID_RF_enable = 1;       //Activated
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 0;
+                            end
+                        end
+// --------------------------------------------------------------------------------------------------------------------------
+        // Load Instructions:
+            7'b0000011: begin
+                            // LW:
+                            if(instruction[14:12] == 3'b010) begin
+                                ID_load_instr = 1;          //Activated to select what is stored in ram
+                                ID_RF_enable = 1;           //Activated
+                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_SE = 0;         //Dectivated for unsigned
+                                ID_E = 1;     //Enable RAM
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 1;
+                                ID_ALU_op = 4'b0010;
+                            end
+                            // LH:
+                            else if(instruction[14:12] == 3'b01) begin
+                                ID_load_instr = 1;          //Activated to select what is stored in ram
+                                ID_RF_enable = 1;           //Activated
+                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_SE = 1;         //Activated for signed
+                                ID_E = 1;     //Enable RAM
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 1;
+                                ID_ALU_op = 4'b0010;
+                               
+                            end
+                            // LHU:
+                            else if(instruction[14:12] == 3'b101) begin
+                                ID_load_instr = 1;          //Activated to select what is stored in ram
+                                ID_RF_enable = 1;           //Activated
+                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_SE = 0;         //Deactivated for unsigned
+                                ID_E = 1;     //Enable RAM
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 1;
+                                ID_ALU_op = 4'b0010;
+                            end
+                            // LB:
+                            else if(instruction[14:12] == 3'b000) begin
+                                ID_load_instr = 1;          //Activated to select what is stored in ram
+                                ID_RF_enable = 1;           //Activated
+                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_SE = 1;         //Activated for signed
+                                ID_E = 1;     //Enable RAM
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 1;
+                                ID_ALU_op = 4'b0010;
+                               
+                            end
+                            // LBU:
+                            else if(instruction[14:12] == 3'b100) begin
+                                ID_load_instr = 1;          //Activated to select what is stored in ram
+                                ID_RF_enable = 1;           //Activated
+                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_SE = 0;         //Dectivated for unsigned
+                                ID_E = 1;     //Enable RAM
+                                ID_S2 = 0;
+                                ID_S1 = 0;
+                                ID_S0 = 1;
+                                ID_ALU_op = 4'b0010;
+                            end
+                        end
+// ------------------------------------------------------------------------------------------------------------------------------
+        // Store Instructions:
+            7'b0100011: begin
+                            // SW:
+                            if(instruction[14:12] == 3'b010) begin
+                                ID_load_instr = 0;                //Deactivated because we are writing
+                                ID_Size = 2'b00;            //Reading byte
+                                ID_SE = 0;         
+                                ID_E = 1;     //Enable RAM
+                                ID_RW = 1;
+                                ID_S2 = 0;
+                                ID_S1 = 1;
+                                ID_S0 = 0;
+                                ID_ALU_op = 4'b0010;
+                            end
+                            // SH:
+                            else if(instruction[14:12] == 3'b001) begin
+                                ID_load_instr = 0;                //Deactivated because we are writing
+                                ID_Size = 2'b00;            //Reading byte
+                                ID_SE = 0;         
+                                ID_E = 1;     //Enable RAM
+                                ID_RW = 1;
+                                ID_S2 = 0;
+                                ID_S1 = 1;
+                                ID_S0 = 0;
+                                ID_ALU_op = 4'b0010;
+                            end
+                            // SB:
+                            else if(instruction[14:12] == 3'b000) begin
+                                ID_load_instr = 0;                //Deactivated because we are writing
+                                ID_Size = 2'b00;            //Reading byte
+                                ID_SE = 0;         
+                                ID_E = 1;     //Enable RAM
+                                ID_RW = 1;
+                                ID_S2 = 0;
+                                ID_S1 = 1;
+                                ID_S0 = 0;
+                                ID_ALU_op = 4'b0010;
+                            end
+                        end
+// -------------------------------------------------------------------------------------------------------------------------
+        // Conditional Branch Instructions:
+            7'b1100011: begin
+                            if(instruction[14:12] == 3'b000) begin
+                                ID_RF_enable = 1;                   //Activated
+                                ID_branchType = 3'b010;               //Branch ID for BEQ
+                            end
+                            else begin
+                                    ID_RF_enable = 1; 
+                                    ID_branchType = instruction[14:12]; //Branch ID for BNE, BLT, BGE, BLTU, and BGEU is funct3
+                                end
+                        end
+// -------------------------------------------------------------------------------------------------------------------------------
+        // Uncoditional Jump Instructions
             // JAL:
             7'b1101111: begin
                             ID_load_instr = 0;
@@ -99,30 +371,7 @@ module CONTROL_UNIT (
                             ID_JALR = 1;
                             ID_dataMemAddressInput = 1;
                         end
-            // LB or LBU:
-            7'b0000011: begin
-                            // LB:
-                            if(instruction[14:12] == 3'b000) begin
-                                ID_load_instr = 1;          //Activated to select what is stored in ram
-                                ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
-                                ID_SE = 1;         //Deactivated for unsigned
-                                ID_E = 1;     //Enable RAM
-                                ID_S2 = 0;
-                                ID_S1 = 0;
-                                ID_S0 = 1;
-                                ID_ALU_op = 4'b0010;
-                               
-                            end
-                            // LBU:
-                            else if(instruction[14:12] == 3'b100) begin
-                                ID_load_instr  = 1;          //Activated to select what is stored in ram
-                                ID_RF_enable  = 1;           //Activated
-                                ID_Size = 2'b00;            //Reading byte
-                                ID_SE = 0;         //Deactivated for unsigned
-                                ID_E = 1;     //Enable RAM
-                            end
-                        end
+
         endcase
 
         id_signal = { ID_ALU_op,                 // Bit [20:17]
