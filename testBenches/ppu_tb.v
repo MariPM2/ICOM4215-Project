@@ -16,6 +16,7 @@
 `include "../modules/condition_handler.v"
 `include "../modules/logic_box.v"
 `include "../modules/if_mux.v"
+`include "../modules/hazard_forwarding_unit.v"
 
 module control_unit_ppu_testbench();
 /* VARIABLES RELATED TO FILE MANAGEMENT*/
@@ -136,7 +137,7 @@ module control_unit_ppu_testbench();
     ram my_ram (mem_ram, mem_control_signal[6], mem_control_signal[4], mem_control_signal[5], mem_alu[8:0], alu_mux_output, mem_control_signal[8:7]);
 
     // END MEM STAGE
-
+    HAZARD_FORWARDING_UNIT my_forwarding_unit (pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction[25:21], id_instruction[20:16], ex_control_signal[11], mem_control_signal[11], wb_control_signal[11], ex_control_signal[12], mem_control_signal[12]);
     PIPELINE_MEM_WB my_mem_wb (wb_control_signal, mem_control_signal, reset, clk);
     PW_SELECTOR my_mem_mux (mem_pw, mem_alu, mem_ram, mem_control_signal[12], mem_control_signal[0]);
     // Yo creo que esto podia haber sido un gen mux
