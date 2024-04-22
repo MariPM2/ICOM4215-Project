@@ -353,7 +353,7 @@ module CONTROL_UNIT (
                             end
                             else begin
                                     ID_ALU_op = 4'b0011;
-                                    ID_RF_enable = 0; 
+                                    ID_RF_enable = 1; 
                                     ID_branchType = instruction[14:12]; //Branch ID for BNE, BLT, BGE, BLTU, and BGEU is funct3
                                 end
                         end
