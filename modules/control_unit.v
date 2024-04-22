@@ -53,7 +53,7 @@ module CONTROL_UNIT (
                             // SLTI (WORK!!!)
                             else if(instruction[14:12] == 3'b010) begin
                                     ID_load_instr = 0;
-                                    ID_ALU_op = 4'b0010;    //Selected ADD
+                                    ID_ALU_op = 4'b1000;    //Selected ADD
                                     ID_RF_enable = 1;       //Activated
                                     ID_S2 = 0;
                                     ID_S1 = 0;
@@ -62,7 +62,7 @@ module CONTROL_UNIT (
                             // SLTIU (WORK!!!)
                             else if(instruction[14:12] == 3'b011) begin
                                     ID_load_instr = 0;
-                                    ID_ALU_op = 4'b0010;    //Selected ADD
+                                    ID_ALU_op = 4'b1001;    //Selected ADD
                                     ID_RF_enable = 1;       //Activated
                                     ID_S2 = 0;
                                     ID_S1 = 0;
@@ -167,7 +167,7 @@ module CONTROL_UNIT (
                             // SLT (WORK)
                             else if(instruction[14:12] == 3'b010) begin
                                 ID_load_instr = 0;
-                                ID_ALU_op = 4'b0011;    //Selected SUB
+                                ID_ALU_op = 4'b1000;    //Selected SUB
                                 ID_RF_enable = 1;       //Activated
                                 ID_S2 = 0;
                                 ID_S1 = 0;
@@ -176,7 +176,7 @@ module CONTROL_UNIT (
                             // SLTU (WORK)
                             else if(instruction[14:12] == 3'b011) begin
                                 ID_load_instr = 0;
-                                ID_ALU_op = 4'b0011;    //Selected SUB
+                                ID_ALU_op = 4'b1001;    //Selected SUB
                                 ID_RF_enable = 1;       //Activated
                                 ID_S2 = 0;
                                 ID_S1 = 0;
@@ -353,7 +353,7 @@ module CONTROL_UNIT (
                             end
                             else begin
                                     ID_ALU_op = 4'b0011;
-                                    ID_RF_enable = 1; 
+                                    ID_RF_enable = 0; 
                                     ID_branchType = instruction[14:12]; //Branch ID for BNE, BLT, BGE, BLTU, and BGEU is funct3
                                 end
                         end
