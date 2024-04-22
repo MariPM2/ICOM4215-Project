@@ -1,9 +1,16 @@
-module register32 (output reg [31:0] Qs , input clk, Ld, input [31:0] Ds);
+module register32 (
+    output reg [31:0] Qs,
+    input clk, Ld, 
+    input [31:0] Ds
+);
 
+    reg[31:0] PW;
+    always @  (posedge clk)  
+        if(Ld) begin
+            PW <= Ds;       
+            Qs <= Ds;
+        end
 
-always @  (posedge clk)  
-    if(Ld)       
-        Qs <= Ds; 
 endmodule
 
 

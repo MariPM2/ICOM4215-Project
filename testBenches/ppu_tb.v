@@ -1,11 +1,13 @@
-// `timescale 1ns / 1ps
+`timescale 1ns / 1ps
 
 `include "../modules/pc.v"
 `include "../modules/mux.v"
 `include "../modules/control_unit.v"
 `include "../modules/pc_adder.v"
 `include "../modules/PF1_Perez_Mendez_Mariana_rom.v"
-`include "../modules/pipeline_registers.v"
+`include "../modules/PF1_Rodriguez_Green_Diego_alu.v"
+`include "../modules/PF1_Rodriguez_Green_Diego_secondoperandhandler.v"
+`include "../modules/pipeline_registers_new.v"
 `include "../modules/RegisterFile.v"
 `include "../modules/pa_mux.v"
 `include "../modules/pb_mux.v"
@@ -17,6 +19,8 @@
 `include "../modules/logic_box.v"
 `include "../modules/if_mux.v"
 `include "../modules/hazard_forwarding_unit.v"
+`include "../modules/imm_handler.v"
+`include "../modules/adder.v"
 
 module control_unit_ppu_testbench();
 /* VARIABLES RELATED TO FILE MANAGEMENT*/
@@ -29,9 +33,9 @@ module control_unit_ppu_testbench();
 
     reg clk, reset;
     // integer cycle;
+    reg finished1;
 
 /* MISCELLANEOUS */
-    reg finished1;
     reg[39:0] op_keyword;
 
 /* REGISTERS (INPUTS AND OUTPUTS) DECLARATIONS*/
@@ -42,16 +46,18 @@ module control_unit_ppu_testbench();
     wire[20:0] ex_control_signal;
     wire[20:0] mem_control_signal;
     wire[20:0] wb_control_signal;
-    reg pc_e, s;  // s = nop_signal
+    // reg pc_e, s;  // s = nop_signal
 
     wire[31:0] id_pa, id_pb, id_pa_mux, id_pb_mux;
 
 //EX Output Wires
-    wire[31:0] ex_source_operand, ex_sa_selector, ex_alu;
+    wire[31:0] ex_second_operand, ex_alu;
     // wire[2:0] ex_instruction_condition;
     // wire ex_hazard_signal;
 
-    reg Z, N, C, V;
+    wire Z, N, C, V;
+
+    wire nop_signal, load_enable, pc_enable;
 
     wire[31:0] alu_A_input;
     wire[31:0] alu_mux_output;
@@ -65,21 +71,35 @@ module control_unit_ppu_testbench();
 
 //MEM Output Wires
     wire[31:0] mem_ram, mem_pw;
-    wire[1:0] ex_flags;
+    // wire[1:0] ex_flags;
     // wire mem_inverter;
-    wire[11:0] imm12_s
+    wire[11:0] imm12_s;
 
 //MEM/WB Output Wires
     wire[31:0] wb_pw;
     wire[4:0] wb_rw;
 
-    reg if_id_reset, id_ex_reset;
-    reg cond_hand_out;
-    wire[2:0] decision_output;
+    wire if_id_reset;
+    wire id_ex_reset;
+    wire cond_hand_out;
+    wire [2:0] decision_output;
     
     wire[31:0] pc_in;
     wire[31:0] id_TA, ex_TA;
     // wire[31:0] id_TA;
+
+    wire[31:0] imm_handler_out;
+
+    // wire[31:0] ex_pc;
+
+    wire[31:0] ex_target_address, ex_instruction, ex_pa, ex_pb;
+    wire[4:0] ex_rw;
+
+    wire[31:0] if_pc, id_pc, ex_pc;
+
+    wire[31:0] id_target_address;
+
+    wire[4:0] id_rw;
 
 
 /* MODULE INSTANTIATIONS */
@@ -95,51 +115,67 @@ module control_unit_ppu_testbench();
     
     
     //END IF STAGE
-    
-    PIPELINE_IF_ID my_if_id(id_instruction_out, if_instruction_out, reset, clk);
-    
+    // Nuevo
+    PIPELINE_IF_ID my_if_id (id_instruction_out, id_pc, if_instruction_out, if_pc, reset, clk, load_enable, ex_hazard_signal);
+    // Viejo
+    // PIPELINE_IF_ID my_if_id(id_instruction_out, if_instruction_out, reset, clk);
+    //$display("\nInstruction: %s", id_instruction_out);
     //START ID STAGE
     
     CONTROL_UNIT my_ctrl_unit (id_control_signal, id_instruction_out);
-    CONTROL_UNIT_MUX my_ctrl_mux (id_control_signal_mux, id_control_signal, s);
+    CONTROL_UNIT_MUX my_ctrl_mux (id_control_signal_mux, id_control_signal, nop_signal);
 
     RegisterFile my_reg_file(id_pa, id_pb, wb_pw, id_instruction_out[19:15], id_instruction_out[24:20], wb_rw, wb_control_signal[15], clk);
 
     PA_MUX my_pa_mux (id_pa_mux, pa_selector, ex_alu, mem_pw, wb_pw, id_pa);
     PB_MUX my_pb_mux (id_pb_mux, pb_selector, ex_alu, mem_pw, wb_pw, id_pb);
-
+    // Cambiar a 31:7 porque asi lo tengo en el diagrama
+    IMM_HANDLER my_imm_hanlder (imm_handler_out, id_control_signal_mux[0], id_instruction_out[31:0]);
+    ADDER my_TA_adder (id_TA, imm_handler_out, pc_out);
     //END ID STAGE
 
-    PIPELINE_ID_EX my_id_ex (ex_control_signal, id_control_signal_mux, reset, clk);
+    // Nuevo:
+    PIPELINE_ID_EX my_id_ex (ex_control_signal, ex_instruction, ex_pa, ex_pb, ex_rw, ex_pc, ex_target_address, id_control_signal_mux, id_instruction_out, id_pa_mux, id_pb_mux, id_rw, id_pc, id_target_address, reset, clk);
+    // Viejo:
+    // PIPELINE_ID_EX my_id_ex (ex_control_signal, id_control_signal_mux, reset, clk);
 
     // START EX STAGE
 
     Concatenate_imm12_s my_imm12_s_conc (imm12_s, id_instruction_out[31:25], id_instruction_out[11:7]);
     // Concatenate_s2_s1_s0 my_si (si, id_instruction_out[14], id_instruction_out[13], id_instruction_out[12]);
     SecondOperandHandler my_second_operand (ex_second_operand, id_pb_mux, {id_instruction_out[14], id_instruction_out[13], id_instruction_out[12]} , id_instruction_out[31:20], imm12_s, id_instruction_out[31:12], ex_pc);
-    GEN_MUX my_alu_A_input (alu_A_input, id_pa_mux, pc_out);
-    ALU my_alu (id_pa_mux, ex_second_operand, ex_control_signal[20:17], ex_alu, Z, N, C, V);
+    GEN_MUX my_alu_A_input (alu_A_input, id_pa_mux, pc_out, ex_control_signal[2]);
+    // ALU my_alu (id_pa_mux, ex_second_operand, ex_control_signal[20:17], ex_alu, Z, N, C, V);
+    ALU my_alu (ex_alu, Z, N, C, V, alu_A_input, ex_second_operand, ex_control_signal[20:17]);
 
-    // HELP!!! NO ENTINDO :(
-    COND_HANDLER my_condition_handler (cond_hand_out, Z, N, C, V, ex_control_signal[11:9]);
+
+    HAZARD_FORWARDING_UNIT my_forwarding_unit (pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction_out[24:20], id_instruction_out[19:15], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15], ex_control_signal[16], mem_control_signal[16]);
+
+    CONDITION_HANDLER my_condition_handler (cond_hand_out, Z, N, C, V, ex_control_signal[11:9]);
 
     GEN_MUX my_alu_mux (alu_mux_output, ex_alu, pc_out+4, ex_control_signal[3]);
 
-    LOGIC_BOX my_logic_box (decision_output, if_id_reset, id_ex_reset, cond_hand_out, id_control_signal[0], mem_control_signal[1]);
+    LOGIC_BOX my_logic_box (decision_output, if_id_reset, id_ex_reset, cond_hand_out, id_control_signal_mux[0], ex_control_signal[1]);
     // AVERVIGUAR COMO RESET LOS PIPELINE IF/ID y ID/EX
 
     // END EX STAGE
-    
-    PIPELINE_EX_MEM my_ex_mem (mem_control_signal, ex_control_signal, reset, clk);
+
+    // Nuevo:
+    PIPELINE_EX_MEM my_ex_mem (mem_control_signal, ex_pb, mem_rw, mem_alu, ex_control_signal, ex_pb, ex_rw, alu_mux_output, reset, clk);
+    // Viejo:
+    // PIPELINE_EX_MEM my_ex_mem (mem_control_signal, ex_control_signal, reset, clk);
 
     // START MEM STAGE
 
     ram my_ram (mem_ram, mem_control_signal[6], mem_control_signal[4], mem_control_signal[5], mem_alu[8:0], alu_mux_output, mem_control_signal[8:7]);
 
     // END MEM STAGE
-    HAZARD_FORWARDING_UNIT my_forwarding_unit (pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction[25:21], id_instruction[20:16], ex_control_signal[11], mem_control_signal[11], wb_control_signal[11], ex_control_signal[12], mem_control_signal[12]);
-    PIPELINE_MEM_WB my_mem_wb (wb_control_signal, mem_control_signal, reset, clk);
-    PW_SELECTOR my_mem_mux (mem_pw, mem_alu, mem_ram, mem_control_signal[12], mem_control_signal[0]);
+    //Nuevo
+    PIPELINE_MEM_WB my_mem_wb(wb_control_signal, wb_rw, wb_pw, mem_control_signal, mem_rw, mem_pw, reset, clk);
+    //Viejo
+    // PIPELINE_MEM_WB my_mem_wb (wb_control_signal, mem_control_signal, reset, clk);
+
+    PW_SELECTOR my_mem_mux (mem_pw, mem_alu, mem_ram, mem_control_signal[16]);
     // Yo creo que esto podia haber sido un gen mux
 
     // START WB STAGE
@@ -149,11 +185,12 @@ module control_unit_ppu_testbench();
 /* TESTBENCH */
     
     initial begin
-        fi = $fopen("../textFiles/PF3_precharge.txt","r");
+        fi = $fopen("../textFiles/PF4_debug_code.txt","r");
         address = 9'b0;
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
             my_rom.Mem[address] = data;
+            my_ram.Mem[address] = data;
             address = address + 1'b1;
         end
         $fclose(fi);
@@ -165,18 +202,16 @@ module control_unit_ppu_testbench();
         wait(finished1);
         reset = 1;
         clk = 0; // Clock set to 0
-        s = 0;
         forever #2 clk = ~clk; // Forever clock
     end
 
     initial fork
         #3 reset = 0;
-        #40 s = 1;
-        #48 $finish;    // Originally 48
+        #300 $finish;
+        // #40 s = 1;
+        // #48 $finish;    // Originally 48
     join           
-    // initial begin
 
-    // end
         
     always @(posedge clk) begin
         
@@ -343,35 +378,10 @@ module control_unit_ppu_testbench();
             default: op_keyword = "NOP";
 
         endcase
-
-        initial begin
-        $monitor ("PC: %d, R1: %d, R3: %d, R4: %d, R5: %d, R8: %d, R10: %d, R11: %d, R12: %d", pc_out, my_reg_file.Q1, my_reg_file.Q3, my_reg_file.Q4, my_reg_file.Q5, my_reg_file.Q8, my_reg_file.Q10, my_reg_file.Q11, my_reg_file.Q12);
-        end
-            // Nuestros:
-            // $display("\tControl Unit Signals (ID STAGE):\n\t\tID_ALU_op = %b,\n \t\tID_load_instr = %b,\n \t\tID_RF_enable = %b,\n \t\tID_S2 = %b,\n \t\tID_S1 = %b,\n  \t\tID_S0 = %b,\n  \t\tID_branchType = %b,\n \t\tID_Size = %b,\n \t\tID_E = %b,\n \t\tID_SE = %b,\n \t\tID_R/W = %b,\n \t\tID_dataMemAddressInput = %b,\n \t\tID_AUIPC = %b,\n \t\tID_JALR = %b,\n \t\tID_JAL = %b,\n", id_control_signal_mux[20:17], id_control_signal_mux[16], id_control_signal_mux[15], id_control_signal_mux[14], id_control_signal_mux[13], id_control_signal_mux[12], id_control_signal_mux[11:9], id_control_signal_mux[8:7], id_control_signal_mux[6], id_control_signal_mux[5], id_control_signal_mux[4], id_control_signal_mux[3], id_control_signal_mux[2], id_control_signal_mux[1], id_control_signal_mux[0]);
-            // $display("\tControl Unit Signals (EX STAGE):\n\t\tEX_ALU_op = %b,\n \t\tEX_load_instr = %b,\n \t\tEX_RF_enable = %b,\n \t\tEX_S2 = %b,\n \t\tEX_S1 = %b,\n  \t\tEX_S0 = %b,\n  \t\tEX_branchType = %b,\n \t\tEX_Size = %b,\n \t\tID_E = %b,\n \t\tEX_SE = %b,\n \t\tEX_R/W = %b,\n \t\tEX_dataMemAddressInput = %b,\n \t\tEX_AUIPC = %b,\n \t\tEX_JALR = %b,\n \t\tEX_JAL = %b,\n", ex_control_signal[20:17], ex_control_signal[16], ex_control_signal[15], ex_control_signal[14], ex_control_signal[13], ex_control_signal[12], ex_control_signal[11:9], ex_control_signal[8:7], ex_control_signal[6], ex_control_signal[5], ex_control_signal[4], ex_control_signal[3], ex_control_signal[2], ex_control_signal[1], ex_control_signal[0]);
-            // $display("\tControl Unit Signals (MEM STAGE)\n\t\tMEM_ALU_op = %b,\n \t\tMEM_load_instr = %b,\n \t\tMEM_RF_enable = %b,\n \t\tMEM_S2 = %b,\n \t\tMEM_S1 = %b,\n  \t\tMEM_S0 = %b,\n  \t\tMEM_branchType = %b,\n \t\tMEM_Size = %b,\n \t\tMEM_E = %b,\n \t\tMEM_SE = %b,\n \t\tMEM_R/W = %b,\n \t\tMEM_dataMemAddressInput = %b,\n \t\tMEM_AUIPC = %b,\n \t\tMEM_JALR = %b,\n \t\tMEM_JAL = %b,\n", mem_control_signal[20:17], mem_control_signal[16], mem_control_signal[15], mem_control_signal[14], mem_control_signal[3], mem_control_signal[12], mem_control_signal[11:9], mem_control_signal[8:7], mem_control_signal[6], mem_control_signal[5], mem_control_signal[4], mem_control_signal[3], mem_control_signal[2], mem_control_signal[1], mem_control_signal[0]);           
-            // $display("\tControl Unit Signals (WB STAGE):\n\t\tWB_ALU_op = %b,\n \t\tWB_load_instr = %b,\n \t\tWB_RF_enable = %b,\n \t\tWB_S2 = %b,\n \t\tWB_S1 = %b,\n  \t\tWB_S0 = %b,\n  \t\tWB_branchType = %b,\n \t\tWB_Size = %b,\n \t\tWB_E = %b,\n \t\tWB_SE = %b,\n \t\tWB_R/W = %b,\n \t\tWB_dataMemAddressInput = %b,\n \t\tWB_AUIPC = %b,\n \t\tWB_JALR = %b,\n \t\tWB_JAL = %b,\n", wb_control_signal[20:17], wb_control_signal[16], wb_control_signal[15], wb_control_signal[14], wb_control_signal[13], wb_control_signal[12], wb_control_signal[11:9], wb_control_signal[8:7], wb_control_signal[6], wb_control_signal[5], wb_control_signal[4], wb_control_signal[3], wb_control_signal[2], wb_control_signal[1], wb_control_signal[0]);
-
-
-            $display("\nKeyword: %s", op_keyword);
-            $display("PC: %d", pc_out);
-            $display("\n Control signal | ID stage | EX stage | MEM stage | WB stage ");
-            $display("----------------|----------|----------|-----------|----------");
-            $display("\tALU_op      | %04b     | %04b     | %04b      | %04b     ", id_control_signal_mux[20:17], ex_control_signal[20:17], mem_control_signal[20:17], wb_control_signal[20:17]);
-            $display("\tload_instr  | %d        | %d        | %d         | %d        ", id_control_signal_mux[16], ex_control_signal[16], mem_control_signal[16], wb_control_signal[16]);
-            $display("\tRF_enable   | %d        | %d        | %d         | %d        ", id_control_signal_mux[15], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15]);
-            $display("\tS2          | %d        | %d        | %d         | %d        ", id_control_signal_mux[14], ex_control_signal[14], mem_control_signal[14], wb_control_signal[14]);
-            $display("\tS1          | %d        | %d        | %d         | %d        ", id_control_signal_mux[13], ex_control_signal[13], mem_control_signal[13], wb_control_signal[13]);
-            $display("\tS0          | %d        | %d        | %d         | %d        ", id_control_signal_mux[12], ex_control_signal[12], mem_control_signal[12], wb_control_signal[12]);
-            $display("\tbranchType  | %03b      | %03b      | %03b       | %03b      ", id_control_signal_mux[11:9], ex_control_signal[11:9], mem_control_signal[11:9], wb_control_signal[11:9]);
-            $display("\tSize        | %02b       | %02b       | %02b        | %02b       ", id_control_signal_mux[8:7], ex_control_signal[8:7], mem_control_signal[8:7], wb_control_signal[8:7]);
-            $display("\tE           | %d        | %d        | %d         | %d        ", id_control_signal_mux[6], ex_control_signal[6], mem_control_signal[6], wb_control_signal[6]);
-            $display("\tSE          | %d        | %d        | %d         | %d        ", id_control_signal_mux[5], ex_control_signal[5], mem_control_signal[5], wb_control_signal[5]);
-            $display("\tR/W         | %d        | %d        | %d         | %d        ", id_control_signal_mux[4], ex_control_signal[4], mem_control_signal[4], wb_control_signal[4]);
-            $display("\tdataMemAddr | %d        | %d        | %d         | %d        ", id_control_signal_mux[3], ex_control_signal[3], mem_control_signal[3], wb_control_signal[3]);
-            $display("\tAUIPC       | %d        | %d        | %d         | %d        ", id_control_signal_mux[2], ex_control_signal[2], mem_control_signal[2], wb_control_signal[2]);
-            $display("\tJALR        | %d        | %d        | %d         | %d        ", id_control_signal_mux[1], ex_control_signal[1], mem_control_signal[1], wb_control_signal[1]);
-            $display("\tJAL         | %d        | %d        | %d         | %d        ", id_control_signal_mux[0], ex_control_signal[0], mem_control_signal[0], wb_control_signal[0]);
     end
+
+    initial begin
+        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, R6: %d", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, my_reg_file.Qs6);
+    end
+            
 endmodule

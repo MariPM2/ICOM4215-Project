@@ -5,12 +5,11 @@ module PC (
     input clk, LE, reset
 );
 
-    always @(posedge clk or reset) begin
-        #1;
+    always @(posedge clk) begin
         if (reset) begin
             // pc_out = 0;
             pc_out  <= 32'b0;
         end
-        else pc_out = pc_in;
+        else pc_out <= pc_in;
     end
 endmodule

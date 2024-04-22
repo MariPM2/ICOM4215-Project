@@ -347,11 +347,13 @@ module CONTROL_UNIT (
         // Conditional Branch Instructions:
             7'b1100011: begin
                             if(instruction[14:12] == 3'b000) begin
-                                ID_RF_enable = 1;                   //Activated
+                                ID_ALU_op = 4'b0011;
+                                ID_RF_enable = 0;                   //Activated
                                 ID_branchType = 3'b010;               //Branch ID for BEQ
                             end
                             else begin
-                                    ID_RF_enable = 1; 
+                                    ID_ALU_op = 4'b0011;
+                                    ID_RF_enable = 0; 
                                     ID_branchType = instruction[14:12]; //Branch ID for BNE, BLT, BGE, BLTU, and BGEU is funct3
                                 end
                         end
@@ -391,3 +393,18 @@ module CONTROL_UNIT (
                     ID_JAL };                    // Bit 0
     end
 endmodule
+
+// module registerX (
+//     output reg [31:0] Qs,
+//     input clk, Ld, 
+//     input [31:0] Ds
+// );
+
+//     reg[31:0] PW;
+//     always @  (posedge clk)  
+//         if(Ld) begin
+//             PW <= Ds;       
+//             Qs <= Ds;
+//         end
+
+// endmodule

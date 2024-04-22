@@ -7,37 +7,29 @@ module PIPELINE_IF_ID (
     // Outputs
     output reg [31:0] instruction_out,
     output reg [31:0] pc_out,
-
-    //output reg [15:0] ID_IMM16,
-    //output reg [25:0] ID_ADDRESS26,
-    //output reg [4:0] ID_RS,
-    //output reg [4:0] ID_RT,
+    output reg [31:0] id_pc_plus4,
 
     // Inputs
-    input[31:0] instruction, pc,
+    input[31:0] instruction, pc, if_pc_plus4,
 
-    input reset, clk, load_enable, control_hazard_reset
+    input reset, clk, load_enable, hazard_reset
 
 );
 
     always@(posedge clk) begin
 
-       if(reset || control_hazard_reset) begin
+
+    //    $display("PC_if_id:%d", pc_out);
+       if(reset || hazard_reset) begin
             instruction_out <= 32'b0;
-        //    ID_IMM16        <= 16'b0;
-        //    ID_ADDRESS26    <= 26'b0;
-        //    ID_RS           <= 5'b0;
-        //    ID_RT           <= 5'b0;
             pc_out          <= 32'b0;
+            id_pc_plus4     <= 32'b0;
         end
        
        else if (load_enable) begin
             instruction_out <= instruction;
-        //    ID_IMM16        <= instruction[15:0];
-        //    ID_ADDRESS26    <= instruction[25:0];
-        //    ID_RS           <= instruction[25:21];
-        //    ID_RT           <= instruction[20:16];
             pc_out          <= pc;
+            id_pc_plus4     <= if_pc_plus4;
        end
     end
 endmodule
@@ -50,45 +42,34 @@ module PIPELINE_ID_EX (
     output reg[20:0] EX_CONTROL_SIGNAL,
     output reg[31:0] EX_INSTRUCTION,
     output reg[31:0] PA, PB,
-    //output reg[5:0] OP,
-    output reg[4:0] RW,
-    // output reg[31:0] PC_P8,       //
-    //output reg[15:0] IMM16,       //  
-    output reg[31:0] PC,          //
-    output reg[31:0] TA,          //
-    // output reg[31:0] HI, LO,
-    //output reg[31:0] INSTRUCTION,
+    output reg[4:0] RW, 
+    output reg[31:0] PC,  
+    output reg[31:0] ex_pc_plus4,      
+    output reg[31:0] TA,         
 
     // Inputs
     input[20:0] ID_CONTROL_SIGNAL,
     input[31:0] ID_INSTRUCTION,
     input[31:0] PA_OUT, PB_OUT,
-    //input[5:0] OP_CODE,
     input[4:0] RW_DATA,
-    // input[31:0] PC_P8_DATA,
-    //input[15:0] IMM16_DATA,
     input[31:0] PC_DATA,
+    input[31:0] id_pc_plus4,
     input[31:0] TA_DATA,
-    // input[31:0] HI_DATA, LO_DATA,
-    //input[31:0] INSTRUCTION_DATA,
-
-    input wire reset, clk
+    input wire reset, clk, hazard_reset
 
 );
 
     always@(posedge clk) begin
     //    #1;
-       if(reset) begin
+       if(reset || hazard_reset) begin
             EX_CONTROL_SIGNAL   <= 21'b0;
             EX_INSTRUCTION      <= 32'b0;
             PA                  <= 32'b0;  
             PB                  <= 32'b0;
             RW                  <= 5'b0;
-            // PC_P8               <= 32'b0;
             PC                  <= 32'b0;
-            TA                  <= 32'b0;
-            // HI                  <= 32'b0;
-            // LO                  <= 32'b0;
+            ex_pc_plus4         <= 32'b0;
+            // TA                  <= 32'b0;
        end
        else begin
             EX_CONTROL_SIGNAL   <= ID_CONTROL_SIGNAL;
@@ -96,11 +77,9 @@ module PIPELINE_ID_EX (
             PA                  <= PA_OUT;
             PB                  <= PB_OUT;
             RW                  <= RW_DATA;
-            // PC_P8               <= PC_P8_DATA;
             PC                  <= PC_DATA;
+            ex_pc_plus4         <= id_pc_plus4;
             TA                  <= TA_DATA;
-            // HI                  <= HI_DATA;
-            // LO                  <= LO_DATA;
        end    
     end
 endmodule
@@ -113,14 +92,12 @@ module PIPELINE_EX_MEM (
     output reg[20:0] MEM_CONTROL_SIGNAL,
     output reg[31:0] PB,
     output reg[4:0] RW,
-    // output reg[31:0] PC_P8,
     output reg[31:0] ALU_RESULT,
 
     // Inputs
     input[20:0] EX_CONTROL_SIGNAL,
     input[31:0] PB_DATA,
     input[4:0] RW_DATA,
-    // input[31:0] PC_P8_DATA,
     input[31:0] ALU_RESULT_DATA,
 
     input reset, clk 
@@ -133,14 +110,12 @@ module PIPELINE_EX_MEM (
             MEM_CONTROL_SIGNAL  <= 21'b0;
             PB                  <= 32'b0;
             RW                  <= 5'b0;
-            // PC_P8               <= 32'b0;
             ALU_RESULT          <= 32'b0;
         end
         else begin
             MEM_CONTROL_SIGNAL  <= EX_CONTROL_SIGNAL;
             PB                  <= PB_DATA;
             RW                  <= RW_DATA;
-            // PC_P8               <= PC_P8_DATA;
             ALU_RESULT          <= ALU_RESULT_DATA;
         end
     end

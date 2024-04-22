@@ -12,16 +12,18 @@ module test_ALU;
   wire V;
 
 
-  ALU alu_inst ( //forzar el input con el punto, si se pone en orden no hay q ponerle el punto
-    .A(A),
-    .B(B),
-    .Op(Op),
-    .Out(Out),
-    .Z(Z),
-    .N(N),
-    .C(C),
-    .V(V)
-  );
+  // ALU alu_inst ( //forzar el input con el punto, si se pone en orden no hay q ponerle el punto
+  //   .A(A),
+  //   .B(B),
+  //   .Op(Op),
+  //   .Out(Out),
+  //   .Z(Z),
+  //   .N(N),
+  //   .C(C),
+  //   .V(V)
+  // );
+
+  ALU alu_inst (Out, Z, N, C, V, A, B, Op);
 
   initial begin
     $display("OP    \t\tA(dec)      \t\tA(bin)     \t\t\t\tB(dec)      \t\tB(bin)      \t\t\t\tOut(dec)       \t\tOut (bin)       \t\t\tZ\tN\tC\tV");

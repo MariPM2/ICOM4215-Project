@@ -1,12 +1,13 @@
 
-module binaryDecoder (output reg [31:0] O, input [4:0] D,input E);
+module binaryDecoder (
+        output reg [31:0] O, input [4:0] D, input E
+);
 
-        always @ (D, E)
-        begin 
-                if(E == 0 )
+        always @ (*) begin 
+                if(E == 0)
                         O =  32'b00000000000000000000000000000000;
                 else   
-                    begin 
+                    begin
                         case (D)
                                 5'b00000: O = 32'b00000000000000000000000000000001;
                                 5'b00001: O = 32'b00000000000000000000000000000010;  
@@ -41,7 +42,7 @@ module binaryDecoder (output reg [31:0] O, input [4:0] D,input E);
                                 5'b11110: O = 32'b01000000000000000000000000000000;
                                 5'b11111: O = 32'b10000000000000000000000000000000;
                         endcase 
-                    end
+                end
         end
 endmodule
 

@@ -1,22 +1,22 @@
 module ALU(
-    input [31:0] A,
-    input [31:0] B,
-    input [3:0] Op,
     output reg [31:0] Out,
     output reg Z,
     output reg N,
     output reg C,
-    output reg V
+    output reg V,
+    input [31:0] A,
+    input [31:0] B,
+    input [3:0] Op
 );
 
 reg [32:0] temp; //temporary value for A-B
 
 always @(A, B, Op)
 begin
-    Z = 0;
-    N = 0;
-    C = 0;
-    V = 0;
+    // Z = 0;
+    // N = 0;
+    // C = 0;
+    // V = 0;
 
     case (Op)
         4'b0000: Out = B;
@@ -27,7 +27,7 @@ begin
 
         4'b0011:
         begin
-            //Out = A - B;
+            Out = A - B;
             temp = {1'b1, A} - {1'b0, B};
             Out = temp[31:0];
 
@@ -39,6 +39,7 @@ begin
             C = ~temp[32];
 
             V = (A[31] ^ B[31]) & (A[31] ^ Out[31]);
+            // $display("Resta");
         end
 
         4'b0100: Out = (A + B) & 32'b11111111111111111111111111111110;// 0xFFFFFFFE
@@ -97,7 +98,7 @@ begin
         4'b1110
         4'b1111
         */
-        default: Out =  32'b0;
+        // default: Out =  32'b0;
     endcase
 end
 endmodule

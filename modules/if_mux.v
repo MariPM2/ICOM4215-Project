@@ -2,8 +2,9 @@ module IF_MUX(
     output reg[31:0] pc_in,
     input wire[31:0] ex_TA,
     input wire[31:0] ex_alu,
+    input wire[31:0] id_TA,
     input wire[31:0] adder_out,
-    input wire[2:0] decision_output
+    input [2:0] decision_output
     );
     
     always @(*) begin

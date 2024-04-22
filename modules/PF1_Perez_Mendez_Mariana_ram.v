@@ -6,7 +6,7 @@ module ram (output reg [31:0] DataOut, input Enable, ReadWrite, SE, input [8:0] 
 
     reg [7:0] Mem[0:511]; //512 localizaciones de 8 bits
     
-    always @(*) begin
+    always @(Enable, ReadWrite, SE, Address, DataIn, Size) begin
     if(Enable)
         if(!ReadWrite)begin // READING:
             case (Size)
