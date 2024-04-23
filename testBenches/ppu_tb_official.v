@@ -196,7 +196,8 @@ module control_unit_ppu_testbench();
 /* TESTBENCH */
     
     initial begin
-        fi = $fopen("../textFiles/PF4_debug_code.txt","r");
+        //fi = $fopen("../textFiles/PF4_debug_code.txt","r");
+        fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
         address = 9'b0;
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
@@ -210,7 +211,8 @@ module control_unit_ppu_testbench();
     end
 
     initial begin
-        fi = $fopen("../textFiles/PF4_debug_code.txt","r");
+        // fi = $fopen("../textFiles/PF4_debug_code.txt","r");
+        fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
         address2 = 9'b0;
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
@@ -243,8 +245,13 @@ module control_unit_ppu_testbench();
         
 
     // El que tiene que funcionar
+    // initial begin
+    //     $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, R6: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, my_reg_file.Qs6, if_id_reset_hazard, id_ex_reset_hazard);
+    // end
+
+    //testcode1
     initial begin
-        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, R6: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, my_reg_file.Qs6, if_id_reset_hazard, id_ex_reset_hazard);
+        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, if_id_reset_hazard, id_ex_reset_hazard);
     end
 
     // RegisterFile

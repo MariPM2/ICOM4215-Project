@@ -1,6 +1,7 @@
 module HAZARD_FORWARDING_UNIT (
+    //input wire[1:0] source_registers_signal
     output reg[1:0] pa_selector, pb_selector,
-    output reg load_enable, pc_enable, nop_signal,  //The pc enable must also be used for npc
+    output reg load_enable, pc_enable, nop_signal,  
     input wire[4:0] ex_destination, mem_destination, wb_destination,
     input wire[4:0] id_rs1, id_rs2,
     input wire ex_rf_enable, mem_rf_enable, wb_rf_enable, ex_load_instruction
