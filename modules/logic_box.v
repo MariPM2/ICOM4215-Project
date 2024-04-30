@@ -14,7 +14,7 @@ module LOGIC_BOX(
 
         if (cond_hand_out) begin
             decision_output = 3'b001; // Any branch
-            if_id_reset = 0;
+            if_id_reset = 1;
             id_ex_reset = 1;
         end
         else if (Jal == 1'b1) begin

@@ -45,10 +45,14 @@ module control_unit_ppu_testbench();
 
     wire[31:0] adder_out, pc_out, if_instruction_out;
     wire[31:0] id_instruction_out;
-    wire[20:0] id_control_signal, id_control_signal_mux;
-    wire[20:0] ex_control_signal;
-    wire[20:0] mem_control_signal;
-    wire[20:0] wb_control_signal;
+    //wire[20:0] id_control_signal, id_control_signal_mux;
+    wire[22:0] id_control_signal, id_control_signal_mux;
+    //wire[20:0] ex_control_signal;
+    wire[22:0] ex_control_signal;
+    //wire[20:0] mem_control_signal;
+    wire[22:0] mem_control_signal;
+    // wire[20:0] wb_control_signal;
+    wire[22:0] wb_control_signal;
     // reg pc_e, s;  // s = nop_signal
 
     wire[31:0] id_pa, id_pb, id_pa_mux, id_pb_mux;
@@ -119,7 +123,7 @@ module control_unit_ppu_testbench();
     CONTROL_UNIT my_ctrl_unit (id_control_signal, id_instruction_out);
     CONTROL_UNIT_MUX my_ctrl_mux (id_control_signal_mux, id_control_signal, nop_signal);
 
-    HAZARD_FORWARDING_UNIT my_forwarding_unit (pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction_out[19:15], id_instruction_out[24:20], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15], ex_control_signal[16]);
+    HAZARD_FORWARDING_UNIT my_forwarding_unit (pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction_out[19:15], id_instruction_out[24:20], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15], ex_control_signal[16],id_control_signal_mux[22:21]);
     //START IF STAGE ---------------------------------------------------------------------------------
 
     IF_MUX my_if_mux (pc_in, ex_TA, ex_alu, id_TA, adder_out, decision_output);
@@ -197,7 +201,8 @@ module control_unit_ppu_testbench();
     
     initial begin
         //fi = $fopen("../textFiles/PF4_debug_code.txt","r");
-        fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
+        // fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
+        fi = $fopen("../textFiles/testcode2_RISC-V.txt","r");
         address = 9'b0;
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
@@ -212,7 +217,8 @@ module control_unit_ppu_testbench();
 
     initial begin
         // fi = $fopen("../textFiles/PF4_debug_code.txt","r");
-        fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
+        // fi = $fopen("../textFiles/testcode1_RISC-V.txt","r");
+        fi = $fopen("../textFiles/testcode2_RISC-V.txt","r");
         address2 = 9'b0;
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
@@ -250,9 +256,15 @@ module control_unit_ppu_testbench();
     // end
 
     //testcode1
+    // initial begin
+    //     $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, if_id_reset_hazard, id_ex_reset_hazard);
+    // end
+
+    //testcode2
     initial begin
-        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, if_id_reset_hazard, id_ex_reset_hazard);
+        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R4: %d, R5: %d, R7: %d, R10: %d, R14: %d, R31: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs4, my_reg_file.Qs5, my_reg_file.Qs7, my_reg_file.Qs10, my_reg_file.Qs14, my_reg_file.Qs31, if_id_reset_hazard, id_ex_reset_hazard);
     end
+
 
     // RegisterFile
     // initial begin
@@ -280,7 +292,7 @@ module control_unit_ppu_testbench();
     
     //Hazard Forwarding Unit
     // initial begin
-    //     $monitor("PC:%d,  pa_s:%b, pb_s:%b, lE:%d, pc_E:%d, nop:%d, ex_rw:%d, mem_rw:%d, wb_rw:%d, rs1:%d, rs2:%d, ex_rf:%d, mem_rf:%d, wb_rf:%d, ex_li:%d", pc_out, pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction_out[19:15], id_instruction_out[24:20], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15], ex_control_signal[16]);
+    //     $monitor("PC:%d, SR:%b, pa_s:%b, pb_s:%b, lE:%d, pc_E:%d, nop:%d, ex_rw:%d, mem_rw:%d, wb_rw:%d, rs1:%d, rs2:%d, ex_rf:%d, mem_rf:%d, wb_rf:%d, ex_li:%d", pc_out, ex_control_signal[22:21], pa_selector, pb_selector, load_enable, pc_enable, nop_signal, ex_rw, mem_rw, wb_rw, id_instruction_out[19:15], id_instruction_out[24:20], ex_control_signal[15], mem_control_signal[15], wb_control_signal[15], ex_control_signal[16]);
     // end
 
     // Condition Handler

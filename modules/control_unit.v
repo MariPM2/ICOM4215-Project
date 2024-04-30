@@ -1,9 +1,9 @@
 module CONTROL_UNIT (
-    //output reg [22:0] id_signal;
-    output reg[20:0] id_signal,
+    output reg[22:0] id_signal,
+    // output reg[20:0] id_signal,
     input[31:0] instruction
 );
-    //reg[1:0] ID_source_registers; 
+    reg[1:0] ID_source_registers; 
     reg[3:0] ID_ALU_op;
     reg ID_load_instr;
     reg ID_RF_enable;
@@ -22,7 +22,7 @@ module CONTROL_UNIT (
 
 
     always@(instruction) begin
-        //ID_source_registers = 0;
+        ID_source_registers = 0;
         ID_ALU_op = 0;
         ID_load_instr = 0;
         ID_RF_enable = 0;
@@ -50,7 +50,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // SLTI (WORK!!!)
                             else if(instruction[14:12] == 3'b010) begin
@@ -60,7 +60,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // SLTIU (WORK!!!)
                             else if(instruction[14:12] == 3'b011) begin
@@ -70,7 +70,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // ANDI
                             else if(instruction[14:12] == 3'b111) begin
@@ -80,7 +80,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // ORI
                             else if(instruction[14:12] == 3'b110) begin
@@ -90,7 +90,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // XORI
                             else if(instruction[14:12] == 3'b100) begin
@@ -100,7 +100,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // SLLI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
                             else if(instruction[14:12] == 3'b100) begin
@@ -110,7 +110,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // SRLI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0000000) begin
@@ -120,7 +120,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                             // SRAI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
@@ -130,7 +130,7 @@ module CONTROL_UNIT (
                                     ID_S2 = 0;
                                     ID_S1 = 0;
                                     ID_S0 = 1;
-                                    //ID_source_registers = 2'b10;
+                                    ID_source_registers = 2'b01;
                             end
                         end
 
@@ -143,7 +143,7 @@ module CONTROL_UNIT (
                             ID_S0 = 1;
                             ID_ALU_op = 4'b0000;    
                             ID_RF_enable = 1;       //Activated
-                            //ID_source_registers = 2'b00;
+                            ID_source_registers = 2'b00;
                         end
         // -------------------------------------------------------------------------------------------------------------------------------
             // AUIPC:
@@ -153,7 +153,7 @@ module CONTROL_UNIT (
                             ID_S0 = 1;
                             ID_ALU_op = 4'b0001;    
                             ID_RF_enable = 1;       //Activated
-                            //ID_source_registers = 2'b00;
+                            ID_source_registers = 2'b00;
                         end
         // -------------------------------------------------------------------------------------------------------------------------------
             // Arithmetic Instructions:
@@ -166,7 +166,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SUB:
                             else if(instruction[14:12] == 3'b000 && instruction[31:25] == 7'b0100000) begin
@@ -176,7 +176,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SLT (WORK)
                             else if(instruction[14:12] == 3'b010) begin
@@ -186,7 +186,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SLTU (WORK)
                             else if(instruction[14:12] == 3'b011) begin
@@ -196,7 +196,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // AND
                             else if(instruction[14:12] == 3'b111) begin
@@ -206,7 +206,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // OR
                             else if(instruction[14:12] == 3'b110) begin
@@ -216,7 +216,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // XOR
                             else if(instruction[14:12] == 3'b100) begin
@@ -226,7 +226,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SLL
                             else if(instruction[14:12] == 3'b001) begin
@@ -236,7 +236,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SRL
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0000000) begin
@@ -246,7 +246,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SRA
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
@@ -256,7 +256,7 @@ module CONTROL_UNIT (
                                 ID_S2 = 0;
                                 ID_S1 = 0;
                                 ID_S0 = 0;
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                         end
 // --------------------------------------------------------------------------------------------------------------------------
@@ -273,7 +273,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 0;
                                 ID_S0 = 1;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                             // LH:
                             else if(instruction[14:12] == 3'b01) begin
@@ -286,7 +286,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 0;
                                 ID_S0 = 1;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                                
                             end
                             // LHU:
@@ -300,7 +300,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 0;
                                 ID_S0 = 1;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                             // LB:
                             else if(instruction[14:12] == 3'b000) begin
@@ -313,7 +313,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 0;
                                 ID_S0 = 1;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                                
                             end
                             // LBU:
@@ -327,7 +327,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 0;
                                 ID_S0 = 1;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                         end
 // ------------------------------------------------------------------------------------------------------------------------------
@@ -344,7 +344,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 1;
                                 ID_S0 = 0;
                                 ID_ALU_op = 4'b0010;
-                                // /ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                             // SH:
                             else if(instruction[14:12] == 3'b001) begin
@@ -357,7 +357,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 1;
                                 ID_S0 = 0;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                             // SB:
                             else if(instruction[14:12] == 3'b000) begin
@@ -370,7 +370,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 1;
                                 ID_S0 = 0;
                                 ID_ALU_op = 4'b0010;
-                                //ID_source_registers = 2'b10;
+                                ID_source_registers = 2'b01;
                             end
                         end
 // -------------------------------------------------------------------------------------------------------------------------
@@ -380,13 +380,13 @@ module CONTROL_UNIT (
                                 ID_ALU_op = 4'b0011;
                                 ID_RF_enable = 0;                   //Activated
                                 ID_branchType = 3'b010;               //Branch ID for BEQ
-                                //ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             else begin
                                     ID_ALU_op = 4'b0011;
                                     ID_RF_enable = 0; 
                                     ID_branchType = instruction[14:12]; //Branch ID for BNE, BLT, BGE, BLTU, and BGEU is funct3
-                                    //ID_source_registers = 2'b01;
+                                    ID_source_registers = 2'b10;
                                 end
                         end
 // -------------------------------------------------------------------------------------------------------------------------------
@@ -397,7 +397,7 @@ module CONTROL_UNIT (
                             ID_RF_enable = 1;
                             ID_JAL = 1;
                             ID_dataMemAddressInput = 1;
-                            //ID_source_registers = 2'b00;
+                            ID_source_registers = 2'b00;
                         end
             // JALR:
             7'b1100111: begin
@@ -405,13 +405,13 @@ module CONTROL_UNIT (
                             ID_RF_enable = 1;
                             ID_JALR = 1;
                             ID_dataMemAddressInput = 1;
-                            //ID_source_registers = 2'b10;
+                            ID_source_registers = 2'b01;
                         end
 
         endcase
 
         id_signal = {
-                   // ID_source_registers,     // Bit [22:21]
+                    ID_source_registers,     // Bit [22:21]
                     ID_ALU_op,                 // Bit [20:17]
                     ID_load_instr,               // Bit 16
                     ID_RF_enable,                // Bit 15              

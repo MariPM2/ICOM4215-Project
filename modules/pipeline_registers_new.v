@@ -39,7 +39,8 @@ Pipeline between ID and EX
 */
 module PIPELINE_ID_EX (
     // Outputs
-    output reg[20:0] EX_CONTROL_SIGNAL,
+    output reg[22:0] EX_CONTROL_SIGNAL,
+    // output reg[20:0] EX_CONTROL_SIGNAL,
     output reg[31:0] EX_INSTRUCTION,
     output reg[31:0] PA, PB,
     output reg[4:0] RW, 
@@ -48,7 +49,8 @@ module PIPELINE_ID_EX (
     output reg[31:0] TA,         
 
     // Inputs
-    input[20:0] ID_CONTROL_SIGNAL,
+    input[22:0] ID_CONTROL_SIGNAL,
+    // input[20:0] ID_CONTROL_SIGNAL,
     input[31:0] ID_INSTRUCTION,
     input[31:0] PA_OUT, PB_OUT,
     input[4:0] RW_DATA,
@@ -62,7 +64,8 @@ module PIPELINE_ID_EX (
     always@(posedge clk) begin
     //    #1;
        if(reset || hazard_reset) begin
-            EX_CONTROL_SIGNAL   <= 21'b0;
+            EX_CONTROL_SIGNAL   <= 23'b0;
+            //EX_CONTROL_SIGNAL   <= 21'b0;
             EX_INSTRUCTION      <= 32'b0;
             PA                  <= 32'b0;  
             PB                  <= 32'b0;
@@ -89,13 +92,15 @@ Pipeline between EX and MEM
 */
 module PIPELINE_EX_MEM (
     // Outputs
-    output reg[20:0] MEM_CONTROL_SIGNAL,
+    output reg[22:0] MEM_CONTROL_SIGNAL,
+    //output reg[20:0] MEM_CONTROL_SIGNAL,
     output reg[31:0] PB,
     output reg[4:0] RW,
     output reg[31:0] ALU_RESULT,
 
     // Inputs
-    input[20:0] EX_CONTROL_SIGNAL,
+    input[22:0] EX_CONTROL_SIGNAL,
+    //input[20:0] EX_CONTROL_SIGNAL,
     input[31:0] PB_DATA,
     input[4:0] RW_DATA,
     input[31:0] ALU_RESULT_DATA,
@@ -107,7 +112,8 @@ module PIPELINE_EX_MEM (
     always@(posedge clk) begin
     //    #1;
         if(reset) begin
-            MEM_CONTROL_SIGNAL  <= 21'b0;
+            MEM_CONTROL_SIGNAL  <= 23'b0;
+            //MEM_CONTROL_SIGNAL  <= 21'b0;
             PB                  <= 32'b0;
             RW                  <= 5'b0;
             ALU_RESULT          <= 32'b0;
@@ -127,12 +133,14 @@ Pipeline between MEM and WB
 */
 module PIPELINE_MEM_WB (
     // Outputs
-    output reg[20:0] WB_CONTROL_SIGNAL,
+    output reg[22:0] WB_CONTROL_SIGNAL,
+    // output reg[20:0] WB_CONTROL_SIGNAL,
     output reg[4:0] RW,
     output reg[31:0] PW,
 
     // Inputs
-    input[20:0] MEM_CONTROL_SIGNAL,
+    input[22:0] MEM_CONTROL_SIGNAL,
+    // input[20:0] MEM_CONTROL_SIGNAL,
     input[4:0] RW_DATA,
     input[31:0] PW_DATA,
 
@@ -143,7 +151,8 @@ module PIPELINE_MEM_WB (
     always@(posedge clk) begin
     //    #1;
         if(reset) begin
-            WB_CONTROL_SIGNAL   <= 21'b0;
+            WB_CONTROL_SIGNAL   <= 23'b0;
+            // WB_CONTROL_SIGNAL   <= 21'b0;
             RW                  <= 5'b0;
             PW                  <= 32'b0;    
         end
