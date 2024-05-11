@@ -41,6 +41,8 @@ module control_unit_ppu_testbench();
 /* MISCELLANEOUS */
     reg[39:0] op_keyword;
 
+    reg[8:0] Loc;
+
 /* REGISTERS (INPUTS AND OUTPUTS) DECLARATIONS*/
 
     wire[31:0] adder_out, pc_out, if_instruction_out;
@@ -207,7 +209,7 @@ module control_unit_ppu_testbench();
         while (!$feof(fi)) begin
             code = $fscanf(fi,"%b",data);
             my_rom.Mem[address] = data;
-            my_ram.Mem[address] = data;
+            // my_ram.Mem[address] = data;
             address = address + 1'b1;
         end
         $fclose(fi);
@@ -257,13 +259,43 @@ module control_unit_ppu_testbench();
 
     //testcode1
     // initial begin
-    //     $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, if_id_reset_hazard, id_ex_reset_hazard);
+    //     $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R5: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d, Time:%d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs5, if_id_reset_hazard, id_ex_reset_hazard, $time);
+    // end
+
+    // initial begin
+    //     #206
+    //     $display("Word 40: %b", {my_ram.Mem[43], my_ram.Mem[42], my_ram.Mem[41], my_ram.Mem[40]});
     // end
 
     //testcode2
     initial begin
-        $monitor("PC: %d, R1: %d, R2: %d, R3: %d, R4: %d, R5: %d, R7: %d, R10: %d, R14: %d, R31: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs4, my_reg_file.Qs5, my_reg_file.Qs7, my_reg_file.Qs10, my_reg_file.Qs14, my_reg_file.Qs31, if_id_reset_hazard, id_ex_reset_hazard);
+        $monitor("PC: %d, R1: %d, R2: %d, R3: %b, R4: %d, R5: %d, R7: %d, R10: %d, R14: %b, R31: %d, if_id_reset_hazard:%d, id_ex_reset_hazard:%d, Time: %d ", pc_out, my_reg_file.Qs1, my_reg_file.Qs2, my_reg_file.Qs3, my_reg_file.Qs4, my_reg_file.Qs5, my_reg_file.Qs7, my_reg_file.Qs10, my_reg_file.Qs14, my_reg_file.Qs31, if_id_reset_hazard, id_ex_reset_hazard, $time);
     end
+
+    // initial begin
+    // #190
+    //     for (address = 9'b10110100; address <= 9'b11011100; address = address + 1'b1) begin
+    //         $display("Word %d: %b", address, {my_ram.Mem[address + 3], my_ram.Mem[address + 2], my_ram.Mem[address + 1], my_ram.Mem[address]});
+    //     end
+    // end
+
+    initial begin
+        #190
+        Loc = 9'd180;
+        repeat (11)
+        begin
+            $display("Word %d: %b", Loc, {my_ram.Mem[Loc+3], my_ram.Mem[Loc+2], my_ram.Mem[Loc+1], my_ram.Mem[Loc]});
+            Loc = Loc +4;
+        end
+    end
+
+
+    // initial begin
+    //     #190
+    //     for (address = 9'b10110100; address <= 9'b11100000; address = address + 1'b1) begin
+    //         $display("Memory[%d]: %b", address, {my_ram.Mem[address + 2'b11], my_ram.Mem[address+2'b10], my_ram.Mem[address+1'b1], my_ram.Mem[address]});
+    //     end
+    // end
 
 
     // RegisterFile

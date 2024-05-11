@@ -125,7 +125,7 @@ module CONTROL_UNIT (
                             // SRAI (WORK le estoy pasando el imm12 porque shamt es parte del imm12)
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
                                     ID_load_instr = 0;
-                                    ID_ALU_op = 4'b0110;    //Selected ADD
+                                    ID_ALU_op = 4'b0111;    //Selected ADD
                                     ID_RF_enable = 1;       //Activated
                                     ID_S2 = 0;
                                     ID_S1 = 0;
@@ -151,9 +151,10 @@ module CONTROL_UNIT (
                             ID_S2 = 0;
                             ID_S1 = 1;
                             ID_S0 = 1;
-                            ID_ALU_op = 4'b0001;    
+                            ID_ALU_op = 4'b0010;    
                             ID_RF_enable = 1;       //Activated
                             ID_source_registers = 2'b00;
+                            ID_AUIPC = 1;
                         end
         // -------------------------------------------------------------------------------------------------------------------------------
             // Arithmetic Instructions:
@@ -251,7 +252,7 @@ module CONTROL_UNIT (
                             // SRA
                             else if(instruction[14:12] == 3'b101 && instruction[31:25] == 7'b0100000) begin
                                 ID_load_instr = 0;
-                                ID_ALU_op = 4'b0110;    //Selected SUB
+                                ID_ALU_op = 4'b0111;    //Selected SUB
                                 ID_RF_enable = 1;       //Activated
                                 ID_S2 = 0;
                                 ID_S1 = 0;
@@ -266,7 +267,7 @@ module CONTROL_UNIT (
                             if(instruction[14:12] == 3'b010) begin
                                 ID_load_instr = 1;          //Activated to select what is stored in ram
                                 ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_Size  = 2'b10;            //Reading word
                                 ID_SE = 0;         //Dectivated for unsigned
                                 ID_E = 1;     //Enable RAM
                                 ID_S2 = 0;
@@ -276,10 +277,10 @@ module CONTROL_UNIT (
                                 ID_source_registers = 2'b01;
                             end
                             // LH:
-                            else if(instruction[14:12] == 3'b01) begin
+                            else if(instruction[14:12] == 3'b001) begin
                                 ID_load_instr = 1;          //Activated to select what is stored in ram
                                 ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_Size  = 2'b01;            //Reading word
                                 ID_SE = 1;         //Activated for signed
                                 ID_E = 1;     //Enable RAM
                                 ID_S2 = 0;
@@ -293,7 +294,7 @@ module CONTROL_UNIT (
                             else if(instruction[14:12] == 3'b101) begin
                                 ID_load_instr = 1;          //Activated to select what is stored in ram
                                 ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_Size  = 2'b01;            //Reading word
                                 ID_SE = 0;         //Deactivated for unsigned
                                 ID_E = 1;     //Enable RAM
                                 ID_S2 = 0;
@@ -306,7 +307,7 @@ module CONTROL_UNIT (
                             else if(instruction[14:12] == 3'b000) begin
                                 ID_load_instr = 1;          //Activated to select what is stored in ram
                                 ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_Size  = 2'b00;            //Reading word
                                 ID_SE = 1;         //Activated for signed
                                 ID_E = 1;     //Enable RAM
                                 ID_S2 = 0;
@@ -320,7 +321,7 @@ module CONTROL_UNIT (
                             else if(instruction[14:12] == 3'b100) begin
                                 ID_load_instr = 1;          //Activated to select what is stored in ram
                                 ID_RF_enable = 1;           //Activated
-                                ID_Size  = 2'b00;            //Reading byte 
+                                ID_Size  = 2'b00;            //Reading word
                                 ID_SE = 0;         //Dectivated for unsigned
                                 ID_E = 1;     //Enable RAM
                                 ID_S2 = 0;
@@ -336,7 +337,7 @@ module CONTROL_UNIT (
                             // SW:
                             if(instruction[14:12] == 3'b010) begin
                                 ID_load_instr = 0;                //Deactivated because we are writing
-                                ID_Size = 2'b00;            //Reading byte
+                                ID_Size = 2'b10;            //Reading word
                                 ID_SE = 0;         
                                 ID_E = 1;     //Enable RAM
                                 ID_RW = 1;
@@ -344,12 +345,12 @@ module CONTROL_UNIT (
                                 ID_S1 = 1;
                                 ID_S0 = 0;
                                 ID_ALU_op = 4'b0010;
-                                ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                             // SH:
                             else if(instruction[14:12] == 3'b001) begin
                                 ID_load_instr = 0;                //Deactivated because we are writing
-                                ID_Size = 2'b00;            //Reading byte
+                                ID_Size = 2'b01;            //Reading word
                                 ID_SE = 0;         
                                 ID_E = 1;     //Enable RAM
                                 ID_RW = 1;
@@ -362,7 +363,7 @@ module CONTROL_UNIT (
                             // SB:
                             else if(instruction[14:12] == 3'b000) begin
                                 ID_load_instr = 0;                //Deactivated because we are writing
-                                ID_Size = 2'b00;            //Reading byte
+                                ID_Size = 2'b00;            //Reading word
                                 ID_SE = 0;         
                                 ID_E = 1;     //Enable RAM
                                 ID_RW = 1;
@@ -370,7 +371,7 @@ module CONTROL_UNIT (
                                 ID_S1 = 1;
                                 ID_S0 = 0;
                                 ID_ALU_op = 4'b0010;
-                                ID_source_registers = 2'b01;
+                                ID_source_registers = 2'b10;
                             end
                         end
 // -------------------------------------------------------------------------------------------------------------------------
@@ -401,11 +402,15 @@ module CONTROL_UNIT (
                         end
             // JALR:
             7'b1100111: begin
+                            ID_ALU_op = 4'b0100;
                             ID_load_instr = 0;
                             ID_RF_enable = 1;
                             ID_JALR = 1;
                             ID_dataMemAddressInput = 1;
                             ID_source_registers = 2'b01;
+                            ID_S2 = 0;
+                            ID_S1 = 0;
+                            ID_S0 = 1;
                         end
 
         endcase

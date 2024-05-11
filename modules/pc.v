@@ -10,6 +10,10 @@ module PC (
             // pc_out = 0;
             pc_out  <= 32'b0;
         end
-        else pc_out <= pc_in;
+        else begin
+            if(LE) begin
+                pc_out <= pc_in;
+            end
+        end
     end
 endmodule

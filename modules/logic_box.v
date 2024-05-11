@@ -25,7 +25,7 @@ module LOGIC_BOX(
         else if (JalR == 1'b1) begin
             decision_output = 3'b011; // JALR jump
             if_id_reset = 1;
-            id_ex_reset = 0;
+            id_ex_reset = 1;
         end 
     end
 endmodule
